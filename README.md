@@ -1,6 +1,5 @@
 # CodeForge 3.0 — SvelteKit + Laravel 11 + MySQL
 
-This is the framework migration of the working CodeForge plain-PHP project. The feature set and database history are preserved, while the application is split into a SvelteKit frontend and Laravel 11 API backend.
 
 ## Stack
 
