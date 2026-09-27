@@ -1,12 +1,12 @@
-﻿# CodeForge - Feature Demo Guide
+# CodeForge Feature Walkthrough
 
-This guide demonstrates the main CodeForge workflows with screenshots captured from the running application.
+This page shows the main features of CodeForge and how each part works.
 
 ## 1. Dashboard
 
 ![CodeForge Dashboard](images/dashboard/01-dashboard.png)
 
-The dashboard is the authenticated starting point for the competitive-programming, analytics, learning, and AI-assisted features.
+The dashboard is the main entry point after login. From here, users can move between problem solving, contests, performance tracking, learning tools, and the other CodeForge features.
 
 ---
 
@@ -14,125 +14,177 @@ The dashboard is the authenticated starting point for the competitive-programmin
 
 ![Performance Profile](images/performance-profile/01-overview.png)
 
-### Workflow
+### How it works
 
-1. The user opens Performance Profile.
-2. CodeForge reads submission and problem-session history.
-3. Backend queries aggregate activity by topic.
-4. PerformanceProfileCalculator converts the raw activity into skill scores.
-5. The Svelte frontend presents the profile visually.
+1. The user's submissions and problem sessions are loaded.
+2. Activity is grouped by topic and difficulty.
+3. The backend calculates the performance scores.
+4. The results are shown in the Performance Profile page.
 
-### Technical flow
+### Backend flow
 
-`	ext
-User
-  -> Performance Profile page
-  -> Laravel API
-  -> PerformanceProfileController
-  -> PerformanceProfileService
-  -> submissions + problem_sessions
-  -> PerformanceProfileCalculator
-  -> JSON
-  -> Svelte UI
-`
+```text
+Performance Profile page
+        |
+        v
+Laravel API
+        |
+        v
+PerformanceProfileController
+        |
+        v
+PerformanceProfileService
+        |
+        v
+PerformanceProfileCalculator
+        |
+        v
+Profile data
+        |
+        v
+Svelte UI
+```
 
-### Main topic formula
+The topic score uses four parts:
 
-`	ext
-Topic Score =
+```text
 45% Accuracy
-+ 25% Difficulty
-+ 20% Speed
-+ 10% Recency
-`
+25% Difficulty
+20% Speed
+10% Recency
+```
 
-The profile includes Problem Solving, Accuracy, Speed, Consistency, Versatility, and Challenge Handling.
+The profile also tracks Problem Solving, Accuracy, Speed, Consistency, Versatility, and Challenge Handling.
 
 ---
 
 ## 3. Ghost Race
 
-![Ghost Race](images/ghost-race/01-opponents.png)
+![Ghost Race Opponent Selection](images/ghost-race/01-opponents.png)
 
-### Workflow
+Ghost Race lets a user compete against another user's previous solved session.
 
-1. The user chooses a ghost opponent.
-2. A ghost represents a historical solved problem session.
-3. CodeForge replays the ghost submission timeline using recorded elapsed times.
+### How it works
+
+1. A historical solved session is selected as the ghost.
+2. A new problem session is created for the challenger.
+3. The ghost's old submission timeline is replayed.
 4. The challenger solves the same problem.
-5. An accepted challenger solution is compared with the ghost solve time.
-6. The result becomes Won, Draw, Lost, or Forfeit.
+5. The final accepted solve times are compared.
 
-### Technical flow
-
-`	ext
+```text
 Historical solved session
-  -> Ghost candidate
-  -> Create ghost_race + challenger problem_session
-  -> Replay historical submissions
-  -> Challenger submits
-  -> Judge
-  -> Compare solve times
-  -> Won / Draw / Lost
-`
+        |
+        v
+Ghost opponent
+        |
+        v
+Create race
+        |
+        v
+Replay ghost timeline
+        |
+        v
+Challenger submits
+        |
+        v
+Compare solve times
+        |
+        v
+Won / Draw / Lost
+```
 
-Ghost Race is asynchronous. Both users do not need to be online at the same time.
+The race is asynchronous, so both users do not have to be online at the same time.
 
-> Screenshot not captured automatically. Add it later at docs/images/ghost-race/02-race-screen.png.
+### Active race
+
+![Active Ghost Race](images/ghost-race/02-race-screen.png)
 
 ---
 
 ## 4. SQL Battle
 
-![SQL Battle](images/sql-battle/01-overview.png)
+![SQL Battle Setup](images/sql-battle/01-overview.png)
 
-### Workflow
+SQL Battle gives two users the same SQL challenge and compares their accepted solutions.
 
-1. A SQL challenge is selected.
-2. Two users compete on the same task.
-3. Each user submits a SQL query.
-4. The SQL judge validates the query before execution.
-5. Reference and submitted result sets are normalized and compared.
-6. Correct queries receive speed and efficiency scoring.
-7. The best accepted scores determine the winner.
+### How it works
 
-### Safety model
+1. The user selects a challenge and an opponent.
+2. Both users submit SQL queries for the same task.
+3. The query is checked before it is executed.
+4. The submitted result is compared with the expected result.
+5. Correct queries receive speed and efficiency scores.
+6. The best accepted score wins the battle.
 
-The SQL judge is designed around read-only arena access. It restricts submitted SQL to approved query forms and arena tables and rejects dangerous mutation/schema operations.
+### Query checks
 
-Additional protections include table whitelisting, one-statement validation, query/result limits, and statement execution limits.
+SQL Battle only allows the query types needed for the arena. It blocks operations that could change tables or database structure.
 
-### Judging flow
+The checks include:
 
-`	ext
-Submitted SQL
-  -> Safety validation
-  -> Execute reference query
-  -> Execute user query
-  -> Normalize results
-  -> Compare correctness
-  -> EXPLAIN for efficiency
-  -> Runtime scoring
-  -> Final battle score
-`
+- approved arena tables only;
+- a single SQL statement;
+- read-only query rules;
+- query and result limits;
+- execution-time limits.
 
-> Screenshot not captured automatically. Add it later at docs/images/sql-battle/02-battle-screen.png.
+### Judge flow
+
+```text
+Submitted query
+        |
+        v
+Validation
+        |
+        v
+Run reference query
+        |
+        v
+Run user query
+        |
+        v
+Compare results
+        |
+        v
+Check efficiency and runtime
+        |
+        v
+Final score
+```
+
+### Active battle
+
+![Active SQL Battle](images/sql-battle/02-battle-screen.png)
 
 ---
 
 ## 5. DSA Visualizer
 
-![DSA Visualizer Hub](images/dsa-visualizer/01-hub.png)
+![DSA Visualizer](images/dsa-visualizer/01-hub.png)
 
-The DSA Visualizer is a frontend learning feature. It currently includes Array Traversal, Linear Search, Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Stack, Queue, Singly Linked List, and BST Traversal.
+The DSA Visualizer shows common algorithms and data structures one step at a time.
+
+Current topics include:
+
+- Array Traversal
+- Linear Search
+- Binary Search
+- Bubble Sort
+- Selection Sort
+- Insertion Sort
+- Stack
+- Queue
+- Singly Linked List
+- BST Traversal
 
 ### Binary Search
 
 ![Binary Search Visualizer](images/dsa-visualizer/02-binary-search.png)
 
-Each algorithm first creates a sequence of step-state objects. The current step controls the visualization, explanation, and highlighted C++ line.
+Each algorithm creates a list of execution steps. A step stores the values needed to draw the current state and highlight the matching C++ line.
 
-`js
+```js
 {
   values: [...],
   low: 0,
@@ -141,9 +193,9 @@ Each algorithm first creates a sequence of step-state objects. The current step 
   message: "...",
   codeLine: 8
 }
-`
+```
 
-This model makes Play, Pause, Previous, Next, Reset, and speed control straightforward because navigation only changes the current step index.
+The current step is used by the Play, Pause, Previous, Next, Reset, and speed controls.
 
 ![Binary Search Step](images/dsa-visualizer/03-binary-search-step.png)
 
@@ -151,107 +203,135 @@ This model makes Play, Pause, Previous, Next, Reset, and speed control straightf
 
 ## 6. AI Copilot
 
-> Screenshot not captured automatically. Add it later at docs/images/ai-copilot/01-open.png.
+![CodeForge Copilot](images/ai-copilot/01-open.png)
 
-AI Copilot is CodeForge-aware rather than being only a generic chatbot.
+The Copilot is connected to CodeForge data and actions, so it can answer questions about the user's activity as well as help with navigation.
 
-### Workflow
+### Request flow
 
-`	ext
+```text
 User message
-  -> local intent handling
-  -> CodeForge user/platform context
-  -> Groq API
-  -> structured response
-  -> allowed CodeForge action
-  -> frontend response
-`
+        |
+        v
+Intent check
+        |
+        v
+CodeForge user context
+        |
+        v
+Groq API
+        |
+        v
+Structured response
+        |
+        v
+CodeForge action or reply
+```
 
-It can support performance analysis, weak-topic detection, practice recommendations, learning plans, platform navigation, and coding-improvement guidance.
+It can help with:
 
-The Groq key remains on the Laravel backend and is not exposed to the Svelte frontend.
+- weak-topic analysis;
+- practice suggestions;
+- performance questions;
+- learning plans;
+- CodeForge navigation;
+- coding guidance.
 
-> Screenshot not captured automatically. Add it later at docs/images/ai-copilot/02-recommendation.png.
+The Groq API key stays on the Laravel backend.
+
+### Practice suggestion
+
+![AI Copilot Recommendation](images/ai-copilot/02-recommendation.png)
 
 ---
 
 ## 7. AI Judge Feedback
 
-AI Judge is connected to the normal programming-submission workflow.
+AI Judge is used after an unsuccessful programming submission.
 
-`	ext
+```text
 Submission
-  -> Judge verdict
-  -> Accepted?
-       Yes -> normal success flow
-       No  -> AI Judge
-  -> Groq analysis
-  -> diagnosis + progressive hints
-`
+        |
+        v
+Judge verdict
+        |
+        +---- Accepted -> normal success flow
+        |
+        +---- Failed
+                 |
+                 v
+              AI Judge
+                 |
+                 v
+        Diagnosis and hints
+```
 
-The feedback can include diagnosis, concept hints, algorithm hints, likely implementation bugs, and topics to review.
-
-> The builder deliberately does not force an incorrect programming submission because that would depend on the current problem, editor, selected language, and demo data. Capture that one workflow manually if you want it shown.
+The feedback can point out the likely issue, give concept or algorithm hints, and suggest what the user should review before trying again.
 
 ---
 
 ## 8. Learn / Play / Prove
 
-![Learn Overview](images/learn/01-overview.png)
+![Learn Page](images/learn/01-overview.png)
 
-The learning flow is structured as:
+The learning section follows three stages:
 
-`	ext
-LEARN
-  -> PLAY
-  -> PROVE
-`
+```text
+LEARN -> PLAY -> PROVE
+```
 
-The initial module focuses on Binary Search.
+The first module is based on Binary Search.
 
-> Screenshot not captured automatically. Add it later at docs/images/learn/02-binary-search-module.png.
+### Learn
 
-The Play stage includes Half Hunt, Midpoint Master, and Trace Race.
+![Binary Search Module](images/learn/02-binary-search-module.png)
 
-> Screenshot not captured automatically. Add it later at docs/images/learn/03-play-stage.png.
+The Learn stage introduces the topic before the user moves to practice.
+
+### Play
+
+The Play stage contains three Binary Search mini games:
+
+- Half Hunt
+- Midpoint Master
+- Trace Race
+
+### Prove
+
+The final stage connects the lesson to a normal CodeForge problem so the user can apply the same idea in a coding task.
 
 ---
 
-## 9. Complete Product Flow
+## 9. Main Project Flow
 
-`	ext
-Authentication
-  -> Dashboard
-  -> Problems / Contests / Learning
-
-Problem solving
-  -> Submission
-  -> Verdict
-  -> Performance history
-  -> Performance Profile
-
-Historical solved sessions
-  -> Ghost Race
-
-SQL challenges
-  -> SQL Battle
-
-Learning
-  -> DSA Visualizer
-  -> Learn / Play / Prove
-
-Platform context
-  -> AI Copilot
-
-Failed programming submission
-  -> AI Judge feedback
-`
+```text
+Login
+  |
+  v
+Dashboard
+  |
+  +--> Problems and Submissions
+  |       |
+  |       +--> Performance Profile
+  |       +--> AI Judge
+  |
+  +--> Ghost Race
+  |
+  +--> SQL Battle
+  |
+  +--> DSA Visualizer
+  |
+  +--> Learn / Play / Prove
+  |
+  +--> AI Copilot
+```
 
 ---
 
 ## 10. Technology Stack
 
 ### Backend
+
 - Laravel
 - PHP
 - MariaDB / MySQL
@@ -259,21 +339,13 @@ Failed programming submission
 - Groq API
 
 ### Frontend
+
 - SvelteKit
 - JavaScript / TypeScript
 - Vite
 
-### Local development
+### Development
+
 - XAMPP
-- Node.js / npm
-
----
-
-## Regenerating the demo
-
-Rerun the demo-builder script while CodeForge is running locally. Use -Interactive to let the script try deeper UI interactions such as starting a Ghost Race, opening a SQL Battle, stepping through Binary Search, sending an AI Copilot prompt, and opening the Learn module.
-
-
-
-
-
+- Node.js
+- npm
