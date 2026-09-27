@@ -248,3 +248,9 @@ npm run build
 ## Migration audit
 
 See `MIGRATION_AUDIT.md` for the old-page → new-route mapping and the regression/optimization work completed during the migration.
+
+## Feature Demo
+
+A complete visual walkthrough of CodeForge is available here:
+
+[View the CodeForge Feature Demo Guide](docs/DEMO_GUIDE.md)
